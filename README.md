@@ -24,8 +24,8 @@ ignores this setting and instantly applies whatever is triggered by the Tag, eve
 got added to the Queue for review.
 
 ## Available Tags
-| Tag | Needs User Input | Description|
-|-----|:---:|----|
+| The_Tag_you_have_to_put_after_[BUNNY] | Needs_User_Input | Description |
+|------------------------------------|:----------------:|-------------|
 | [HP] | <ul><li>- [x]  </li></ul>|Sets your current HP to whatever value the Viewer entered|
 | [FULLHEAL] | <ul><li>- [ ] </li></ul>|Fully heals you*|
 | [HEAL] | <ul><li>- [x]  </li></ul> | Heals you by the amount specified by the Viewer*|
@@ -33,15 +33,15 @@ got added to the Queue for review.
 | [KILL] | <ul><li>- [x]  </li></ul> | Kills you!|
 | [HPUP][ADD] | <ul><li>- [ ] </li></ul> | Adds one of the unused Max HP Ups to your inventory, effectively increasing your Max HP.|
 | [HPUP][REMOVE] | <ul><li>- [ ] </li></ul> | Removes one of the unused Max HP Ups from your inventory, effectively decreasing your Max HP (if you had one of the unused HP Ups applied before.)|
-| [BUFF][BUFF_NAME][DURATION]| <ul><li>- [ ] </li></ul> / <ul><li>- [x] </li></ul> | Applies a Buff or Debuff to you. See Table below for valid BUFF_NAMEs. Valid durations are ``REMOVE`` (to remove it), ``INSTANT``, ``SHORT``, ``MEDIUM``, ``LONG`` and ``VERYLONG``. If you set the duration to be ``CUSTOM``, the buff will be applied for the duration the viewer entered.|
-| [MONEY][ADD][VALUE] | <ul><li>- [ ] </li></ul> / <ul><li>- [x] </li></ul> | Gives you the amount of money specified by ``VALUE``. If ``VALUE`` is ``CUSTOM``, you get the amount of money specified by the viewer instead.|
-| [MONEY][REMOVE][VALUE] | <ul><li>- [ ] </li></ul> / <ul><li>- [x] </li></ul> | Removes the amount of money specified by ``VALUE`` from you. If ``VALUE`` is ``CUSTOM``, you lose the amount of money specified by the viewer instead.|
-| [MONEY][SET][VALUE] | <ul><li>- [ ] </li></ul> / <ul><li>- [x] </li></ul> | Just like the above two, just that it ``SET``s your money to the ``VALUE`` specified. May be ``CUSTOM``.|
+| [BUFF][BUFF_NAME][DURATION]| Depends | Applies a Buff or Debuff to you. See Table below for valid BUFF_NAMEs. Valid durations are ``REMOVE`` (to remove it), ``INSTANT``, ``SHORT``, ``MEDIUM``, ``LONG`` and ``VERYLONG``. If you set the duration to be ``CUSTOM``, the buff will be applied for the duration the viewer entered.|
+| [MONEY][ADD][VALUE] | Depends | Gives you the amount of money specified by ``VALUE``. If ``VALUE`` is ``CUSTOM``, you get the amount of money specified by the viewer instead.|
+| [MONEY][REMOVE][VALUE] | Depends | Removes the amount of money specified by ``VALUE`` from you. If ``VALUE`` is ``CUSTOM``, you lose the amount of money specified by the viewer instead.|
+| [MONEY][SET][VALUE] | Depends | Just like the above two, just that it ``SET``s your money to the ``VALUE`` specified. May be ``CUSTOM``.|
 | [BADGE][RANDOM] | <ul><li>- [ ] </li></ul> | Randomizes your entire Badge Inventory, randomly removing, deleting and equipping badges. Does not care about the Badge Point limit. |
 | [BADGE][DELETE][NAME] | <ul><li>- [ ] </li></ul> | Entirely deletes the badge of name ``NAME`` from your inventory. See table below for valid ``NAME``s.|
 | [BADGE][UNLOCK][NAME] | <ul><li>- [ ] </li></ul> | Unlocks the badge of name ``NAME`` for you. Unequips the Badge if it was equipped! See table below for valid ``NAME``s.|
 | [BADGE][EQUIP][NAME] | <ul><li>- [ ] </li></ul> | Equips the badge of name ``NAME`` for you. Unlocks it if it was not unlocked before. See table below for valid ``NAME``s.|
-| [KEYS][SWAP][KEY1][KEY2][DURATION] | <ul><li>- [ ] </li></ul> | Swaps the two specified ``KEY``s for ``DURATION`` seconds. ``DURATION`` may be ``CUSTOM``. See above. See below for valid ``KEY`` Names. Note that it can get pretty messy with multiple keyswaps for the same keys. Once all Key Swaps expire, the original Key Config will be restores.|
+| [KEYS][SWAP][KEY1][KEY2][DURATION] | Depends | Swaps the two specified ``KEY``s for ``DURATION`` seconds. ``DURATION`` may be ``CUSTOM``. See above. See below for valid ``KEY`` Names. Note that it can get pretty messy with multiple keyswaps for the same keys. Once all Key Swaps expire, the original Key Config will be restores.|
 
 *Note: If you are killed and are still on the death screen, healing you will technically revive you!
 
