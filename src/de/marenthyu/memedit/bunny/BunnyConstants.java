@@ -12,6 +12,9 @@ public class BunnyConstants {
             "SELF_DEFENSE", "ARMORED", "LUCKY_SEVEN", "HEX_CANCEL", "PURE_LOVE", "TOXIC_STRIKE",
             "FRAME_CANCEL", "HEALTH_WAGER", "MANA_WAGER", "STAMINA_PLUS", "BLESSED", "HITBOX_DOWN", "CASHBACK",
             "SURVIVAL", "TOP_FORM", "TOUGH_SKIN", "ERINA_BADGE", "RIBBON_BADGE", "AUTO_TRIGGER", "LILITHS_GIFT"};
-    final static int RABI_HEALTHUP_OFFSET = 0x167A06C; //Healthup 0 START. Next 64 values are Healthups. Last value at 0x167A168‬ (Health Up 63)
+    final static int RABI_HEALTHUP_POINTER_OFFSET = 0x1E22A0; //Healthup 0 START. Next 64 values are Healthups. Last value at 0x167A168‬ (Health Up 63)
+    final static int RABI_UNUSED_HPUP_ID_START = 45;
+    final static int RABI_UNUSED_HPUP_ID_END = 63;
+    final static int RABI_BUFFS_ARRAY_OFFSET = 0x46D8; // Slowdown is the first effect, next 64 values are the effects.
 
 }

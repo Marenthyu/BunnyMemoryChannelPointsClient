@@ -43,6 +43,8 @@ public class Main {
         BunnyMemoryManager.addHealHandler(pubSub);
         BunnyMemoryManager.addBadgeHandlers(pubSub);
         BunnyMemoryManager.addBadgeRandomizationHandler(pubSub);
+        BunnyMemoryManager.addHealthUpHandlers(pubSub);
+        BunnyMemoryManager.addUnusedHealthUpHandlers(pubSub);
 
         System.out.println("============= SETUP COMPLETE! Leaving this running should work now. Close this window to kill it. =============");
     }
