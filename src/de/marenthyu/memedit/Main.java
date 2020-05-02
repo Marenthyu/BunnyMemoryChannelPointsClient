@@ -38,13 +38,8 @@ public class Main {
         // Okay, we found bunny - time to do some stuff
 
         assert pubSub != null;
-        BunnyMemoryManager.addSetHPHandler(pubSub);
-        BunnyMemoryManager.addFullHealHandler(pubSub);
-        BunnyMemoryManager.addHealHandler(pubSub);
-        BunnyMemoryManager.addBadgeHandlers(pubSub);
-        BunnyMemoryManager.addBadgeRandomizationHandler(pubSub);
-        BunnyMemoryManager.addHealthUpHandlers(pubSub);
-        BunnyMemoryManager.addUnusedHealthUpHandlers(pubSub);
+        BunnyMemoryManager.addAllHandlers(pubSub);
+        BunnyMemoryManager.addAllDebugHandlers(pubSub);
 
         System.out.println("============= SETUP COMPLETE! Leaving this running should work now. Close this window to kill it. =============");
     }

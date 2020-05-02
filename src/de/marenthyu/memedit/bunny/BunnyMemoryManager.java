@@ -61,7 +61,7 @@ public class BunnyMemoryManager {
             @Override
             public void matched(String input) {
                 try {
-                    int newHeahlth = Integer.parseInt(input);
+                    int newHeahlth = Integer.parseInt(input.trim());
                     setHP(newHeahlth);
                     System.out.println("[BUNNY][HP] HP set to " + newHeahlth);
                 } catch (NumberFormatException e) {
@@ -86,12 +86,44 @@ public class BunnyMemoryManager {
             @Override
             public void matched(String input) {
                 try {
-                    int amount = Integer.parseInt(input);
+                    int amount = Integer.parseInt(input.trim());
+                    if (amount < 0) {
+                        throw new NumberFormatException();
+                    }
                     heal(amount);
                     System.out.println("[BUNNY][HEAL] Healed by " + amount);
                 } catch (NumberFormatException e) {
-                    System.err.println("[BUNNY][HEAL] Invalid Number.");
+                    System.err.println("[BUNNY][HEAL] Invalid Number " + input);
                 }
+            }
+
+        });
+    }
+
+    public static void addDamageHandler(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][DAMAGE]") {
+            @Override
+            public void matched(String input) {
+                try {
+                    int amount = Integer.parseInt(input.trim());
+                    if (amount < 0) {
+                        throw new NumberFormatException();
+                    }
+                    heal(-amount);
+                    System.out.println("[BUNNY][DAMAGE] Damaged by " + amount);
+                } catch (NumberFormatException e) {
+                    System.err.println("[BUNNY][DAMAGE] Invalid Number " + input);
+                }
+            }
+
+        });
+    }
+
+    public static void addKillHandler(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][KILL]") {
+            @Override
+            public void matched(String input) {
+                setHP(0);
             }
 
         });
@@ -147,20 +179,20 @@ public class BunnyMemoryManager {
     }
 
     public static void addHealthUpHandlers(PubSubClient pubSub) {
-        for (int i = 0;i<=63;i++) {
+        for (int i = 0; i <= 63; i++) {
             final int finalI = i;
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][" + finalI + "][ADD]") {
                 @Override
                 public void matched(String input) {
                     collectHealthUp(finalI);
-                    System.out.println("[BUNNY][HPUP] Enabled HPUp #" + (finalI +1));
+                    System.out.println("[BUNNY][HPUP] Enabled HPUp #" + (finalI + 1));
                 }
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][" + finalI + "][REMOVE]") {
                 @Override
                 public void matched(String input) {
                     resetHealthUp(finalI);
-                    System.out.println("[BUNNY][HPUP] Removed HPUp #" + (finalI +1));
+                    System.out.println("[BUNNY][HPUP] Removed HPUp #" + (finalI + 1));
                 }
             });
         }
@@ -205,6 +237,104 @@ public class BunnyMemoryManager {
 
             }
         });
+    }
+
+    public static void addBuffNameHandlers(PubSubClient pubSub) {
+        for (int i = 0; i < RABI_BUFFS.length; i++) {
+            int finalI = i;
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][CUSTOM]") {
+                @Override
+                public void matched(String input) {
+                    try {
+                        setBuff(finalI, Integer.parseInt(input.trim()));
+                        System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + input + " seconds!");
+                    } catch (NumberFormatException e) {
+                        System.err.println("[BUNNY][BUFF] Invalid number passed: " + input);
+                    }
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][INSTANT]") {
+                @Override
+                public void matched(String input) {
+                    setBuff(finalI, 1);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for 1 second!");
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][SHORT]") {
+                @Override
+                public void matched(String input) {
+                    int r = 5 + random.nextInt(5);
+                    setBuff(finalI, r);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][MEDIUM]") {
+                @Override
+                public void matched(String input) {
+                    int r = 10 + random.nextInt(30);
+                    setBuff(finalI, r);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][LONG]") {
+                @Override
+                public void matched(String input) {
+                    int r = 30 + random.nextInt(60);
+                    setBuff(finalI, r);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][VERYLONG]") {
+                @Override
+                public void matched(String input) {
+                    int r = 100 + random.nextInt(300);
+                    setBuff(finalI, r);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
+                }
+            });
+            // sshhh... let's not leak our hard work
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][DONG]") {
+                @Override
+                public void matched(String input) {
+                    int r = 600 + random.nextInt(5000);
+                    setBuff(finalI, r);
+                    System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
+                }
+            });
+        }
+
+    }
+
+    public static void addBuffDebugHandler(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][DEBUG]") {
+            @Override
+            public void matched(String input) {
+                int buffID, length;
+                String[] split = input.split(",");
+                buffID = Integer.parseInt(split[0]);
+                length = Integer.parseInt(split[1]);
+                setBuff(buffID, length);
+                System.out.println("[BUNNY][BUFF][DEBUG] Set " + RABI_BUFFS[buffID] + " to length " + length);
+            }
+        });
+    }
+
+    public static void addAllHandlers(PubSubClient pubSub) {
+        addSetHPHandler(pubSub);
+        addFullHealHandler(pubSub);
+        addHealHandler(pubSub);
+        addDamageHandler(pubSub);
+        addKillHandler(pubSub);
+        addBadgeHandlers(pubSub);
+        addBadgeRandomizationHandler(pubSub);
+        addHealthUpHandlers(pubSub);
+        addUnusedHealthUpHandlers(pubSub);
+        addBuffNameHandlers(pubSub);
+    }
+
+    public static void addAllDebugHandlers(PubSubClient pubSub) {
+        addDebugHealthUpHandler(pubSub);
+        addBuffDebugHandler(pubSub);
     }
 
     private static void handleBadge(int badgeID, int newStatus) {
@@ -291,7 +421,7 @@ public class BunnyMemoryManager {
     }
 
     public static boolean addUnusedHPUP() {
-        for (int i=RABI_UNUSED_HPUP_ID_START;i<=RABI_UNUSED_HPUP_ID_END;i++) {
+        for (int i = RABI_UNUSED_HPUP_ID_START; i <= RABI_UNUSED_HPUP_ID_END; i++) {
             if (!getHPUpStatus(i)) {
                 collectHealthUp(i);
                 return true;
@@ -299,14 +429,20 @@ public class BunnyMemoryManager {
         }
         return false;
     }
+
     public static boolean removeUnusedHPUP() {
-        for (int i=RABI_UNUSED_HPUP_ID_START;i<=RABI_UNUSED_HPUP_ID_END;i++) {
+        for (int i = RABI_UNUSED_HPUP_ID_START; i <= RABI_UNUSED_HPUP_ID_END; i++) {
             if (getHPUpStatus(i)) {
                 resetHealthUp(i);
                 return true;
             }
         }
         return false;
+    }
+
+    public static void setBuff(int buffID, int length) {
+        long dynAddress = findDynAddress(bunnyProcess, new int[]{buffID * 4}, RABI_BASE_SIZE + RABI_BUFFS_ARRAY_OFFSET);
+        writeMemory(bunnyProcess, dynAddress, intToBytes(length * 60));
     }
 
 }
