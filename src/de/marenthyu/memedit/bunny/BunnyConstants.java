@@ -26,5 +26,9 @@ public class BunnyConstants {
             "INSTANT_DEATH", "HEALTH_ABSORB", "POWER_ABSORB", "300_REVENGE", "BUNNY_LOVER", "HEALING", "T_MINUS_TWO",
             "T_MINUS_ONE", "ATTACK_BOOST", "MEOW_RESPAWN", "NULL"};
     final static int RABI_MONEY_OFFSET = 0x0000453C;
+    final static int RABI_CONTROLS_ARRAY_OFFSET = 0x16B544C; // NOTE: Direct pointer. Static. Not dynamic. Each 1 byte.
+    final static String[] RABI_CONTROLS_NAMES = {"UP", "DOWN", "LEFT", "RIGHT", "JUMP", "MAGIC_ATTACK", "MEELE_ATTACK",
+            "BOOST_ATTACK", "CHANGE_MAGIC_TYPE_LEFT", "CHANGE_MAGIC_TYPE_RIGHT", "ITEM_MENU", "AMULET", "DASH"};
+
 
 }

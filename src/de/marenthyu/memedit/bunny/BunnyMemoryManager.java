@@ -9,6 +9,7 @@ import de.marenthyu.twitch.pubsub.channelpoints.ChannelPointsRedemptionHandler;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static de.marenthyu.memedit.bunny.BunnyConstants.*;
 import static de.marenthyu.memedit.util.Shared.*;
@@ -19,6 +20,8 @@ public class BunnyMemoryManager {
     static int RABI_BASE_SIZE;
     public static Pointer bunnyProcess;
     public static int bunnyPID;
+    public static int keySwapsInProcess = 0;
+    public static int[] keyConfig;
 
     private static final Random random = new Random();
 
@@ -266,8 +269,6 @@ public class BunnyMemoryManager {
                 } catch (UserInputError exc) {
                     // do nothing. already handled.
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    System.err.println("prompt was: " + prompt);
                     System.err.println("[BUNNY][MONEY] Got an invalid number. Make sure the prompt starts with \"[BUNNY][MONEY][ADD][1234]\", replacing 1234 with whatever value you want.");
                 }
 
@@ -335,6 +336,60 @@ public class BunnyMemoryManager {
         });
     }
 
+    public static void addKeySwapHandlers(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][KEYS][SWAP]") {
+            @Override
+            public void matched(String input, String prompt) {
+                // Expected prompt is [BUNNY][KEYS][SWAP][KEY1][KEY2][1234] <stuff>
+                try {
+                    String[] parts = prompt.split("]");
+                    int key1 = getKeyIDFromName(parts[3].replace("[", ""));
+                    int key2 = getKeyIDFromName(parts[4].replace("[", ""));
+                    String durationString = parts[5].replace("[", "");
+                    if (key1 == -1 || key2 == -1) {
+                        System.err.println("[BUNNY][KEYS][SWAP] Invalid Key name specified.");
+                    } else {
+                        int duration;
+                        if (durationString.equals("CUSTOM")) {
+                            try {
+                                duration = Integer.parseInt(input);
+                                if (duration < 0) {
+                                    throw new UserInputError(null);
+                                }
+                            } catch (NumberFormatException e) {
+                                throw new UserInputError(e);
+                            }
+                        } else {
+                            duration = Integer.parseInt(durationString);
+                        }
+                        if (keySwapsInProcess++ == 0) {
+                            saveKeyConfig();
+                        }
+                        swapKeys(key1, key2);
+                        final int finalDuration = duration;
+                        new Thread(() -> {
+                            try {
+                                TimeUnit.SECONDS.sleep(finalDuration);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            swapKeys(key1, key2);
+                            System.out.println("[BUNNY][KEYS][SWAP] Swapped " + RABI_CONTROLS_NAMES[key1] + " and " + RABI_CONTROLS_NAMES[key2] + " again to return them to normal.");
+                            keySwapsInProcess--;
+                            if (keySwapsInProcess == 0) {
+                                restoreKeyConfig();
+                            }
+
+                        }).start();
+                        System.out.println("[BUNNY][KEYS][SWAP] Swapped " + RABI_CONTROLS_NAMES[key1] + " with " + RABI_CONTROLS_NAMES[key2]);
+                    }
+                } catch (Exception e) {
+                    System.err.println("[BUNNY][KEYS][SWAP] Error processing request. Assuming the length was invalid.");
+                }
+            }
+        });
+    }
+
     public static void addBuffNameHandlers(PubSubClient pubSub) {
         for (int i = 0; i < RABI_BUFFS.length; i++) {
             int finalI = i;
@@ -347,6 +402,13 @@ public class BunnyMemoryManager {
                     } catch (NumberFormatException e) {
                         System.err.println("[BUNNY][BUFF] Invalid number passed: " + input);
                     }
+                }
+            });
+            pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][REMOVE]") {
+                @Override
+                public void matched(String input, String prompt) {
+                    setBuff(finalI, 0);
+                    System.out.println("[BUNNY][BUFF] Removed buff " + RABI_BUFFS[finalI]);
                 }
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][INSTANT]") {
@@ -427,6 +489,7 @@ public class BunnyMemoryManager {
         addUnusedHealthUpHandlers(pubSub);
         addBuffNameHandlers(pubSub);
         addMoneyHandlers(pubSub);
+        addKeySwapHandlers(pubSub);
     }
 
     public static void addAllDebugHandlers(PubSubClient pubSub) {
@@ -560,6 +623,43 @@ public class BunnyMemoryManager {
 
     public static void removeMoney(int amount) {
         addMoney(-amount);
+    }
+
+    public static int getCurrentKeyBind(int configID) {
+        return readMemory(bunnyProcess, RABI_BASE_SIZE + RABI_CONTROLS_ARRAY_OFFSET + (configID*4), 4).getInt(0);
+    }
+
+    public static void setKeyBind(int configID, int newKey) {
+        writeMemory(bunnyProcess, RABI_BASE_SIZE + RABI_CONTROLS_ARRAY_OFFSET + (configID*4), intToBytes(newKey));
+    }
+
+    public static void swapKeys(int configID1, int configID2) {
+        int old1 = getCurrentKeyBind(configID1);
+        setKeyBind(configID1, getCurrentKeyBind(configID2));
+        setKeyBind(configID2, old1);
+    }
+
+    public static int getKeyIDFromName(String name) {
+        for (int i=0;i<RABI_CONTROLS_NAMES.length;i++) {
+            if (RABI_CONTROLS_NAMES[i].equals(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static void saveKeyConfig() {
+        keyConfig = new int[RABI_CONTROLS_NAMES.length];
+        for (int i=0;i<RABI_CONTROLS_NAMES.length;i++) {
+            keyConfig[i] = getCurrentKeyBind(i);
+        }
+    }
+
+    public static void restoreKeyConfig() {
+        for (int i=0;i<RABI_CONTROLS_NAMES.length;i++) {
+            setKeyBind(i, keyConfig[i]);
+        }
+        System.out.println("[BUNNY][KEYS] Original Key Configuration restored.");
     }
 
 }
