@@ -45,7 +45,7 @@ got added to the Queue for review.
 
 *Note: If you are killed and are still on the death screen, healing you will technically revive you!
 
-## Available **BUFF_NAMES**
+## Available ``BUFF`` Names
 | Name |
 |:---:|
 |SPEED_DOWN|
