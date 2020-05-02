@@ -20,19 +20,19 @@ public class BunnyMemoryManager {
 
 
     public static void init() {
-        bunnyPID = getProcessId(RABI_TITLE);
+        bunnyPID = getProcessIdByWindowTitle(RABI_TITLE);
         System.out.println("[BUNNY] Bunny PID: " + bunnyPID);
         bunnyProcess = openProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, bunnyPID);
         try {
             RABI_BASE_SIZE = getBaseAddress("rabiribi.exe");
             if (RABI_BASE_SIZE == 0) {
-                throw new IOException("Invalid Size Returned from Powershell");
+                throw new IOException("Invalid Size Returned from Base Address Detection");
             }
         } catch (NumberFormatException | IOException e) {
             // e.printStackTrace();
             System.out.println();
             System.out.println("[BUNNY] Error getting the Module base address automatically, asking user.");
-            String userInput = JOptionPane.showInputDialog("Please Enter the base address of rabiribi.exe\n If you dare, please help me automate this. I am at the end of my knowledge. If you don't know how to do this, ask whoever linked you this software.");
+            String userInput = JOptionPane.showInputDialog("Please Enter the base address of rabiribi.exe\n Too bad this failed. Thanks sig for the actual implementation that works most of the time. If you don't know how to do this, ask whoever linked you this software.");
             try {
                 RABI_BASE_SIZE = Integer.decode(userInput);
             } catch (Exception y) {

@@ -3,26 +3,33 @@ package de.marenthyu.memedit.util;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
+import de.marenthyu.memedit.util.sig.Module;
+import de.marenthyu.memedit.util.sig.PsapiTools;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class Shared {
     static Kernel32 kernel32 = Native.load("kernel32", Kernel32.class);
     static User32 user32 = Native.load("user32", User32.class);
 
+    final static int PROCESS_PERMISSIONS = WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ;
+
     public static int PROCESS_VM_READ = 0x0010;
     public static int PROCESS_VM_WRITE = 0x0020;
     public static int PROCESS_VM_OPERATION = 0x0008;
 
-    public static int getProcessId(String window) {
+    public static int getProcessIdByWindowTitle(String window) {
         IntByReference pid = new IntByReference(0);
         user32.GetWindowThreadProcessId(user32.FindWindowA(null, window), pid);
 
         return pid.getValue();
     }
+
 
     public static Pointer openProcess(int permissions, int pid) {
         Pointer process = kernel32.OpenProcess(permissions, true, pid);
@@ -83,7 +90,36 @@ public class Shared {
         };
     }
 
-    public static int getBaseAddress(String executableName) throws IOException {
+    public static int getBaseAddress(String executableName) {
+        List<Integer> pids = null;
+        try {
+            pids = PsapiTools.getInstance().enumProcesses();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+        for (Integer pid : pids) {
+            WinNT.HANDLE process = com.sun.jna.platform.win32.Kernel32.INSTANCE.OpenProcess(PROCESS_PERMISSIONS, true, pid);
+            List<Module> hModules;
+            try {
+                hModules = PsapiTools.getInstance().EnumProcessModules(process);
+                for (Module m : hModules) {
+                    //System.out.println(m.getFileName()+":"+m.getEntryPoint());
+                    if (m.getFileName().contains(executableName)) {
+                        return (int) Pointer.nativeValue(m.getLpBaseOfDll().getPointer());
+
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+
+    @Deprecated
+    // Kept for historical reasons. Thanks sig.
+    public static int getBaseAddressPowerShell(String executableName) throws IOException {
         String command = "powershell.exe  \"$modules = Get-Process " + executableName.split("\\.")[0] + " -Module; $modules[0].BaseAddress;\"";
         // Executing the command
         Process powerShellProcess = Runtime.getRuntime().exec(command);

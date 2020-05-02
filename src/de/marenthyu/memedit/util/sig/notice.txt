@@ -1,0 +1,3 @@
+Thank you to https://github.com/sigonasr2/sigIRCv2 for providing the classes in this package.
+
+No LICENSE was attached to the project at the time of writing. Credit to the original author.
