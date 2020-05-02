@@ -26,5 +26,5 @@ got added to the Queue for review.
 ## Available Tags
 | Tag | Needs User Input | Description|
 |-----|:---:|----|
-| [HP] | <ul><li>- [x]</li></ul>|Sets your current HP to whatever value the Viewer entered|
-| [FULLHEAL] | <ul><li>- [ ]</li></ul>|Fully heals you|
+| [HP] | <ul><li>- [x]  </li></ul>|Sets your current HP to whatever value the Viewer entered|
+| [FULLHEAL] | <ul><li>- [ ] </li></ul>|Fully heals you|
