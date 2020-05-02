@@ -29,6 +29,9 @@ public class BunnyConstants {
     final static int RABI_CONTROLS_ARRAY_OFFSET = 0x16B544C; // NOTE: Direct pointer. Static. Not dynamic. Each 1 byte.
     final static String[] RABI_CONTROLS_NAMES = {"UP", "DOWN", "LEFT", "RIGHT", "JUMP", "MAGIC_ATTACK", "MEELE_ATTACK",
             "BOOST_ATTACK", "CHANGE_MAGIC_TYPE_LEFT", "CHANGE_MAGIC_TYPE_RIGHT", "ITEM_MENU", "AMULET", "DASH"};
-
+    final static int RABI_MAP_OFFSET = 0xD87FA4; // Direct pointer. single 4-byte value.
+    final static String[] RABI_MAPS = {"SouthernWoodland", "WesternCoast", "IslandCore", "NorthernTundra", "EasternHighlands",
+            "RabiRabiTown", "Plurkwood", "SubterraneanArea", "WarpDestination", "SystemInterior"};
+    final static String RABI_TOWN_NAME = "RabiRabiTown";
 
 }

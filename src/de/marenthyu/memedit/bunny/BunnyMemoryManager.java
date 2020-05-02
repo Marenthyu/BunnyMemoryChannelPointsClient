@@ -601,8 +601,13 @@ public class BunnyMemoryManager {
     }
 
     public static void setBuff(int buffID, int length) {
-        long dynAddress = findDynAddress(bunnyProcess, new int[]{buffID * 4}, RABI_BASE_SIZE + RABI_BUFFS_ARRAY_OFFSET);
-        writeMemory(bunnyProcess, dynAddress, intToBytes(length * 60));
+        if (length != 0 && RABI_BUFFS[buffID].equals("STUNNED") && getCurrentMap().equals(RABI_TOWN_NAME)) {
+            System.err.println("[BUNNY][SAFEGUARDS] Prevented applying STUNNED Buff in Town.");
+        } else {
+            long dynAddress = findDynAddress(bunnyProcess, new int[]{buffID * 4}, RABI_BASE_SIZE + RABI_BUFFS_ARRAY_OFFSET);
+            writeMemory(bunnyProcess, dynAddress, intToBytes(length * 60));
+        }
+
     }
 
     public static int getMoney() {
@@ -660,6 +665,11 @@ public class BunnyMemoryManager {
             setKeyBind(i, keyConfig[i]);
         }
         System.out.println("[BUNNY][KEYS] Original Key Configuration restored.");
+    }
+
+    public static String getCurrentMap() {
+        int id = readMemory(bunnyProcess, RABI_BASE_SIZE + RABI_MAP_OFFSET, 4).getInt(0);
+        return RABI_MAPS[id];
     }
 
 }
