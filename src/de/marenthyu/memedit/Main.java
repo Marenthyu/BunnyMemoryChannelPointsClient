@@ -25,7 +25,7 @@ public class Main {
         OAuthToken token = AuthStore.getToken();
         PubSubClient pubSub = null;
         try {
-            ArrayList<String> topics = new ArrayList<String>();
+            ArrayList<String> topics = new ArrayList<>();
             topics.add("channel-points-channel-v1." + token.getUserID());
             pubSub = new PubSubClient(token, topics);
 
@@ -42,6 +42,7 @@ public class Main {
         BunnyMemoryManager.addFullHealHandler(pubSub);
         BunnyMemoryManager.addHealHandler(pubSub);
         BunnyMemoryManager.addBadgeHandlers(pubSub);
+        BunnyMemoryManager.addBadgeRandomizationHandler(pubSub);
 
         System.out.println("============= SETUP COMPLETE! Leaving this running should work now. Close this window to kill it. =============");
     }

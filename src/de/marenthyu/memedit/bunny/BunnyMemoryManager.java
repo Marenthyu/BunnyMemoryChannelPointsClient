@@ -7,6 +7,7 @@ import de.marenthyu.twitch.pubsub.channelpoints.ChannelPointsRedemptionHandler;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.util.Random;
 
 import static de.marenthyu.memedit.bunny.BunnyConstants.*;
 import static de.marenthyu.memedit.util.Shared.*;
@@ -18,6 +19,7 @@ public class BunnyMemoryManager {
     public static Pointer bunnyProcess;
     public static int bunnyPID;
 
+    private static final Random random = new Random();
 
     public static void init() {
         bunnyPID = getProcessIdByWindowTitle(RABI_TITLE);
@@ -122,23 +124,7 @@ public class BunnyMemoryManager {
                 pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BADGE][" + type + "][" + RABI_BADGES[finalI] + "]") {
                     @Override
                     public void matched(String input) {
-                        switch (finalJ) {
-                            case 0:
-                            {
-                                removeBadge(finalI);
-                                break;
-                            }
-                            case 1: {
-                                unluckAndUnequipBadge(finalI);
-                                break;
-                            }
-                            case 2: {
-                                equipBadge(finalI);
-                                break;
-                            }
-                            default:
-                                throw new IllegalStateException("Unexpected value: " + finalJ);
-                        }
+                        handleBadge(finalI, finalJ);
                         System.out.println("[BUNNY][BADGE][" + type + "][" + RABI_BADGES[finalI] + "] Badges changed!");
                     }
 
@@ -146,6 +132,40 @@ public class BunnyMemoryManager {
             }
         }
 
+    }
+
+    public static void addBadgeRandomizationHandler(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BADGE][RANDOM]") {
+            @Override
+            public void matched(String input) {
+                for (int i = 0;i < RABI_BADGES.length;i++) {
+                    int r = random.nextInt(3);
+                    handleBadge(i, r);
+                    System.out.println("[BUNNY][BADGE][RANDOM][" + RABI_BADGES[i] + "] Badge changed!");
+                }
+                System.out.println("[BUNNY][BADGE][RANDOM] All Badges randomized!");
+            }
+        });
+    }
+
+    private static void handleBadge(int badgeID, int newStatus) {
+        switch (newStatus) {
+            case 0:
+            {
+                removeBadge(badgeID);
+                break;
+            }
+            case 1: {
+                unluckAndUnequipBadge(badgeID);
+                break;
+            }
+            case 2: {
+                equipBadge(badgeID);
+                break;
+            }
+            default:
+                throw new IllegalStateException("Unexpected value: " + newStatus);
+        }
     }
 
     public static void setHP(int newHeahlth) {
