@@ -2,6 +2,7 @@ package de.marenthyu.memedit.bunny;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import de.marenthyu.memedit.bunny.exceptions.UserInputError;
 import de.marenthyu.twitch.pubsub.PubSubClient;
 import de.marenthyu.twitch.pubsub.channelpoints.ChannelPointsRedemptionHandler;
 
@@ -239,6 +240,101 @@ public class BunnyMemoryManager {
         });
     }
 
+    public static void addMoneyHandlers(PubSubClient pubSub) {
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][ADD]") {
+            @Override
+            public void matched(String input, String prompt) {
+                // Expected prompt is [BUNNY][MONEY][ADD][1234] <stuff>
+                try {
+                    String thirdValue = prompt.split("]")[3].replace("[", "");
+                    int amount;
+                    if (thirdValue.equals("CUSTOM")) {
+                        try {
+                            amount = Integer.parseInt(input);
+                            if (amount < 0) {
+                                throw new NumberFormatException();
+                            }
+                        } catch (NumberFormatException ex) {
+                            System.err.println("[BUNNY][MONEY][ADD][CUSTOM] Got invalid number as user input " + input);
+                            throw new UserInputError(ex);
+                        }
+                    } else {
+                        amount = Integer.parseInt(thirdValue);
+                    }
+                    addMoney(amount);
+                    System.out.println("[BUNNY][MONEY][ADD] Added " + amount + " EN!");
+                } catch (UserInputError exc) {
+                    // do nothing. already handled.
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.err.println("prompt was: " + prompt);
+                    System.err.println("[BUNNY][MONEY] Got an invalid number. Make sure the prompt starts with \"[BUNNY][MONEY][ADD][1234]\", replacing 1234 with whatever value you want.");
+                }
+
+            }
+        });
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][REMOVE]") {
+            @Override
+            public void matched(String input, String prompt) {
+                // Expected prompt is [BUNNY][MONEY][REMOVE][1234] <stuff>
+                try {
+                    String thirdValue = prompt.split("]")[3].replace("[", "");
+                    int amount;
+                    if (thirdValue.equals("CUSTOM")) {
+                        try {
+                            amount = Integer.parseInt(input);
+                            if (amount < 0) {
+                                throw new NumberFormatException();
+                            }
+                        } catch (NumberFormatException ex) {
+                            System.err.println("[BUNNY][MONEY][REMOVE][CUSTOM] Got invalid number as user input " + input);
+                            throw new UserInputError(ex);
+                        }
+                    } else {
+                        amount = Integer.parseInt(thirdValue);
+                    }
+                    removeMoney(amount);
+                    System.out.println("[BUNNY][MONEY][REMOVE] Removed " + amount + " EN!");
+                } catch (UserInputError exc) {
+                    // do nothing. already handled.
+                } catch (Exception e) {
+                    System.err.println("[BUNNY][MONEY] Got an invalid number. Make sure the prompt starts with \"[BUNNY][MONEY][REMOVED][1234]\", replacing 1234 with whatever value you want.");
+                }
+
+            }
+        });
+        pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][SET]") {
+            @Override
+            public void matched(String input, String prompt) {
+                // Expected prompt is [BUNNY][MONEY][SET][1234] <stuff>
+                try {
+                    String thirdValue = prompt.split("]")[3].replace("[", "");
+                    int amount;
+                    if (thirdValue.equals("CUSTOM")) {
+                        try {
+                            amount = Integer.parseInt(input);
+                            if (amount < 0) {
+                                throw new NumberFormatException();
+                            }
+                        } catch (NumberFormatException ex) {
+                            System.err.println("[BUNNY][MONEY][SET][CUSTOM] Got invalid number as user input " + input);
+                            throw new UserInputError(ex);
+                        }
+                    } else {
+                        amount = Integer.parseInt(thirdValue);
+                    }
+                    setMoney(amount);
+                    System.out.println("[BUNNY][MONEY][SET] Set EN to " + amount + " EN!");
+                } catch (UserInputError exc) {
+                    // do nothing. already handled.
+                } catch (Exception e) {
+                    System.err.println("[BUNNY][MONEY] Got an invalid number. Make sure the prompt starts with \"[BUNNY][MONEY][SET][1234]\", replacing 1234 with whatever value you want.");
+                }
+
+            }
+        });
+    }
+
     public static void addBuffNameHandlers(PubSubClient pubSub) {
         for (int i = 0; i < RABI_BUFFS.length; i++) {
             int finalI = i;
@@ -330,6 +426,7 @@ public class BunnyMemoryManager {
         addHealthUpHandlers(pubSub);
         addUnusedHealthUpHandlers(pubSub);
         addBuffNameHandlers(pubSub);
+        addMoneyHandlers(pubSub);
     }
 
     public static void addAllDebugHandlers(PubSubClient pubSub) {
@@ -443,6 +540,26 @@ public class BunnyMemoryManager {
     public static void setBuff(int buffID, int length) {
         long dynAddress = findDynAddress(bunnyProcess, new int[]{buffID * 4}, RABI_BASE_SIZE + RABI_BUFFS_ARRAY_OFFSET);
         writeMemory(bunnyProcess, dynAddress, intToBytes(length * 60));
+    }
+
+    public static int getMoney() {
+        long dynAddress = findDynAddress(bunnyProcess, new int[]{0x0}, RABI_BASE_SIZE + RABI_MONEY_OFFSET);
+        Memory moneyCurrentMem = readMemory(bunnyProcess, dynAddress, 4);
+        return moneyCurrentMem.getInt(0);
+    }
+
+    public static void setMoney(int newMoney) {
+        long dynAddress = findDynAddress(bunnyProcess, new int[]{0x0}, RABI_BASE_SIZE + RABI_MONEY_OFFSET);
+        writeMemory(bunnyProcess, dynAddress, intToBytes(newMoney));
+    }
+
+    public static void addMoney(int amount) {
+        int oldMoney = getMoney();
+        setMoney(oldMoney + amount);
+    }
+
+    public static void removeMoney(int amount) {
+        addMoney(-amount);
     }
 
 }
