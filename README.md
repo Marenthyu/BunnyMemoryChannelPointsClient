@@ -165,3 +165,8 @@ got added to the Queue for review.
 |ITEM_MENU|
 |AMULET|
 |DASH|
+
+# Dev Notes
+If you want to compile this, make sure to grab a copy of an ``org.json``-compatible library, Java-Websocket, JNA (5.5) and [marenJT](https://github.com/Marenthyu/marenJT).
+
+// This code is a mess and needs refactoring. Probably. It's cleaner than NepBot.
