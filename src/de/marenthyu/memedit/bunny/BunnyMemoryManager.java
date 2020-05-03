@@ -5,6 +5,7 @@ import com.sun.jna.Pointer;
 import de.marenthyu.memedit.bunny.exceptions.UserInputError;
 import de.marenthyu.twitch.pubsub.PubSubClient;
 import de.marenthyu.twitch.pubsub.channelpoints.ChannelPointsRedemptionHandler;
+import de.marenthyu.twitch.pubsub.channelpoints.Redemption;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -63,7 +64,8 @@ public class BunnyMemoryManager {
     public static void addSetHPHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HP]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput();
                 try {
                     int newHeahlth = Integer.parseInt(input.trim());
                     setHP(newHeahlth);
@@ -78,7 +80,7 @@ public class BunnyMemoryManager {
     public static void addFullHealHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][FULLHEAL]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
                 fullHeal();
                 System.out.println("[BUNNY][FULLHEAL] Healed fully!");
             }
@@ -88,7 +90,8 @@ public class BunnyMemoryManager {
     public static void addHealHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HEAL]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput();
                 try {
                     int amount = Integer.parseInt(input.trim());
                     if (amount < 0) {
@@ -107,7 +110,8 @@ public class BunnyMemoryManager {
     public static void addDamageHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][DAMAGE]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput();
                 try {
                     int amount = Integer.parseInt(input.trim());
                     if (amount < 0) {
@@ -126,7 +130,7 @@ public class BunnyMemoryManager {
     public static void addKillHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][KILL]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
                 setHP(0);
             }
 
@@ -157,7 +161,7 @@ public class BunnyMemoryManager {
                 final int finalI = i;
                 pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BADGE][" + type + "][" + RABI_BADGES[finalI] + "]") {
                     @Override
-                    public void matched(String input, String prompt) {
+                    public void matched(Redemption redemption) {
                         handleBadge(finalI, finalJ);
                         System.out.println("[BUNNY][BADGE][" + type + "][" + RABI_BADGES[finalI] + "] Badges changed!");
                     }
@@ -171,7 +175,7 @@ public class BunnyMemoryManager {
     public static void addBadgeRandomizationHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BADGE][RANDOM]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
                 for (int i = 0; i < RABI_BADGES.length; i++) {
                     int r = random.nextInt(3);
                     handleBadge(i, r);
@@ -187,14 +191,14 @@ public class BunnyMemoryManager {
             final int finalI = i;
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][" + finalI + "][ADD]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     collectHealthUp(finalI);
                     System.out.println("[BUNNY][HPUP] Enabled HPUp #" + (finalI + 1));
                 }
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][" + finalI + "][REMOVE]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     resetHealthUp(finalI);
                     System.out.println("[BUNNY][HPUP] Removed HPUp #" + (finalI + 1));
                 }
@@ -207,7 +211,8 @@ public class BunnyMemoryManager {
     public static void addDebugHealthUpHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][DEBUG]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput();
                 int hpUpID, status;
                 String[] split = input.split(",");
                 hpUpID = Integer.parseInt(split[0]);
@@ -221,7 +226,7 @@ public class BunnyMemoryManager {
     public static void addUnusedHealthUpHandlers(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][ADD]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
                 if (addUnusedHPUP()) {
                     System.out.println("[BUNNY][HPUP] Added an unused HPUP");
                 } else {
@@ -232,7 +237,7 @@ public class BunnyMemoryManager {
         });
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][HPUP][REMOVE]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
                 if (removeUnusedHPUP()) {
                     System.out.println("[BUNNY][HPUP] Removed an unused HPUP");
                 } else {
@@ -246,7 +251,8 @@ public class BunnyMemoryManager {
     public static void addMoneyHandlers(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][ADD]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput(), prompt = redemption.getReward().getPrompt();
                 // Expected prompt is [BUNNY][MONEY][ADD][1234] <stuff>
                 try {
                     String thirdValue = prompt.split("]")[3].replace("[", "");
@@ -276,7 +282,8 @@ public class BunnyMemoryManager {
         });
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][REMOVE]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput(), prompt = redemption.getReward().getPrompt();
                 // Expected prompt is [BUNNY][MONEY][REMOVE][1234] <stuff>
                 try {
                     String thirdValue = prompt.split("]")[3].replace("[", "");
@@ -306,7 +313,8 @@ public class BunnyMemoryManager {
         });
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][MONEY][SET]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput(), prompt = redemption.getReward().getPrompt();
                 // Expected prompt is [BUNNY][MONEY][SET][1234] <stuff>
                 try {
                     String thirdValue = prompt.split("]")[3].replace("[", "");
@@ -339,7 +347,8 @@ public class BunnyMemoryManager {
     public static void addKeySwapHandlers(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][KEYS][SWAP]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput(), prompt = redemption.getReward().getPrompt();
                 // Expected prompt is [BUNNY][KEYS][SWAP][KEY1][KEY2][1234] <stuff>
                 try {
                     String[] parts = prompt.split("]");
@@ -395,7 +404,8 @@ public class BunnyMemoryManager {
             int finalI = i;
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][CUSTOM]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
+                    String input = redemption.getInput();
                     try {
                         setBuff(finalI, Integer.parseInt(input.trim()));
                         System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + input + " seconds!");
@@ -406,21 +416,21 @@ public class BunnyMemoryManager {
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][REMOVE]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     setBuff(finalI, 0);
                     System.out.println("[BUNNY][BUFF] Removed buff " + RABI_BUFFS[finalI]);
                 }
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][INSTANT]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     setBuff(finalI, 1);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for 1 second!");
                 }
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][SHORT]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     int r = 5 + random.nextInt(5);
                     setBuff(finalI, r);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
@@ -428,7 +438,7 @@ public class BunnyMemoryManager {
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][MEDIUM]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     int r = 10 + random.nextInt(30);
                     setBuff(finalI, r);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
@@ -436,7 +446,7 @@ public class BunnyMemoryManager {
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][LONG]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     int r = 30 + random.nextInt(60);
                     setBuff(finalI, r);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
@@ -444,7 +454,7 @@ public class BunnyMemoryManager {
             });
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][VERYLONG]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     int r = 100 + random.nextInt(300);
                     setBuff(finalI, r);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
@@ -453,7 +463,7 @@ public class BunnyMemoryManager {
             // sshhh... let's not leak our hard work
             pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][" + RABI_BUFFS[finalI] + "][DONG]") {
                 @Override
-                public void matched(String input, String prompt) {
+                public void matched(Redemption redemption) {
                     int r = 600 + random.nextInt(5000);
                     setBuff(finalI, r);
                     System.out.println("[BUNNY][BUFF] Activated buff " + RABI_BUFFS[finalI] + " for " + r + " seconds!");
@@ -466,7 +476,8 @@ public class BunnyMemoryManager {
     public static void addBuffDebugHandler(PubSubClient pubSub) {
         pubSub.addChannelPointsRedemptionHandler(new ChannelPointsRedemptionHandler("[BUNNY][BUFF][DEBUG]") {
             @Override
-            public void matched(String input, String prompt) {
+            public void matched(Redemption redemption) {
+                String input = redemption.getInput();
                 int buffID, length;
                 String[] split = input.split(",");
                 buffID = Integer.parseInt(split[0]);
