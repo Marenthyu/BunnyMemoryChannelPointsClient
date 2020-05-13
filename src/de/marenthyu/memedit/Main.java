@@ -15,7 +15,11 @@ public class Main {
     public static void main(String[] args) {
 
         AuthStore.init(CLIENT_ID);
-        while (!AuthStore.isInitialized()) {
+        boolean needsToken = !AuthStore.hasUserToken();
+        if (needsToken) {
+            AuthStore.requestNewUserToken();
+        }
+        while (!AuthStore.hasUserToken()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(200);
             } catch (InterruptedException e) {
